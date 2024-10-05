@@ -87,4 +87,38 @@ TEST_CASE("component", "[component]") {
 
         REQUIRE(component_store.size() == 100);
     }
+
+    SECTION("clear", "[component]") {
+        ecs::entity_store store;
+        for (int i = 0; i < 200; i++) {
+            auto const e = store.create();
+            REQUIRE(component_store.add(e, dummy{i, ""}) == ecs::error::ok);
+        }
+
+        REQUIRE(component_store.clear() == ecs::error::ok);
+        REQUIRE(component_store.size() == 0);
+        REQUIRE(store.clear() == ecs::error::ok);
+    }
+
+    SECTION("clear add after", "[component]") {
+        ecs::entity_store store;
+        for (int i = 0; i < 200; i++) {
+            auto const e = store.create();
+            REQUIRE(component_store.add(e, dummy{i, ""}) == ecs::error::ok);
+        }
+
+        REQUIRE(component_store.clear() == ecs::error::ok);
+        REQUIRE(component_store.size() == 0);
+        REQUIRE(store.clear() == ecs::error::ok);
+
+        for (int i = 0; i < 20; i++) {
+            auto const e = store.create();
+            REQUIRE(component_store.add(e, dummy{i, ""}) == ecs::error::ok);
+        }
+
+        for (int i = 0; i < 20; i++) {
+            auto const component = component_store.get(static_cast<ecs::entity>(i));
+            REQUIRE(component.a == static_cast<ecs::entity>(i));
+        }
+    }
 }

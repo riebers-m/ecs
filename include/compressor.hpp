@@ -20,6 +20,7 @@ namespace memory_layout {
         [[nodiscard]] virtual tl::expected<size_t, ecs::error> get(ecs::entity) const = 0;
         // Returns index of removed entity
         virtual tl::expected<size_t, ecs::error> remove(ecs::entity) = 0;
+        virtual ecs::error clear() = 0;
         // Current size of entities
         [[nodiscard]] virtual size_t size() const = 0;
         [[nodiscard]] virtual bool contains(ecs::entity) const = 0;
@@ -37,6 +38,7 @@ namespace memory_layout {
         tl::expected<size_t, ecs::error> add(ecs::entity) override;
         [[nodiscard]] tl::expected<size_t, ecs::error> get(ecs::entity) const override;
         tl::expected<size_t, ecs::error> remove(ecs::entity) override;
+        ecs::error clear() override;
         [[nodiscard]] size_t size() const override;
         [[nodiscard]] bool contains(ecs::entity) const override;
     };

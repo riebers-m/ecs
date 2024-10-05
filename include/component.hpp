@@ -17,6 +17,8 @@ namespace ecs {
     public:
         virtual ~base_component() = default;
         virtual error destroy(entity) = 0;
+        virtual error clear() = 0;
+        virtual bool contains(entity) = 0;
     };
 
     template<typename T, typename MemoryLayout>
@@ -67,6 +69,15 @@ namespace ecs {
             }
             throw std::out_of_range(std::format("entity {} not found", e));
         }
+
+        error clear() override {
+            m_layout.clear();
+            std::fill(m_components.begin(), m_components.end(), T{});
+            return error::ok;
+        }
+
+        bool contains(entity e) override { return m_layout.contains(e); }
+
         error destroy(entity e) override { return remove(e); }
 
         [[nodiscard]] std::size_t size() const { return m_layout.size(); }

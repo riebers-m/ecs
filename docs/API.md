@@ -78,7 +78,7 @@ auto const& position = ecs.get<position>(entity);
 It is also possible to get multiple components at once.
 
 ````c++
-auto const [pos, vel] = ecs.get<position, velocity>(entity);
+auto const [pos, vel] = ecs.get_multiple<position, velocity>(entity);
 ````
 
 To get all entities owning a specific component.
@@ -87,7 +87,7 @@ To get all entities owning a specific component.
 auto view = ecs.view<position>();
 ````
 
-Then iterating ower all components like this.
+Then iterating over all components like this.
 
 ````c++
 for(auto entity:view) {

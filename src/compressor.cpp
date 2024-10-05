@@ -42,6 +42,13 @@ namespace memory_layout {
         return tl::unexpected(ecs::error::not_found);
     }
 
+    ecs::error compressed::clear() {
+        m_entity_count = 0;
+        m_entity_to_index.clear();
+        m_index_to_entity.clear();
+        return ecs::error::ok;
+    }
+
     size_t compressed::size() const { return m_entity_count; }
 
     bool compressed::contains(ecs::entity e) const { return m_entity_to_index.contains(e); }

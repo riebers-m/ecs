@@ -62,8 +62,14 @@ namespace ecs {
             }
             return err;
         }
-        error clear();
 
+        error clear() {
+            m_entities.clear();
+            for (auto [key, components]: m_components) {
+                components->clear();
+            }
+            return error::ok;
+        }
 
         template<typename... Components>
         error emplace(entity e) {
@@ -85,6 +91,60 @@ namespace ecs {
             } catch (std::out_of_range const &) {
                 return error::not_found;
             }
+        }
+
+        template<typename T>
+        [[nodiscard]] bool contains(entity e) const {
+            auto const type = typeid(T).name();
+            if (!m_components.contains(type)) {
+                return false;
+            }
+            return m_components.at(type)->contains(e);
+        }
+
+        template<typename... Components>
+        [[nodiscard]] bool all_of(entity e) const {
+            try {
+                bool const ok = ((contains<Components>(e)) && ...);
+                return ok;
+            } catch (std::out_of_range const &) {
+                return false;
+            }
+        }
+
+        template<typename... Components>
+        [[nodiscard]] bool any_of(entity e) const {
+            try {
+                bool const ok = ((contains<Components>(e)) || ...);
+                return ok;
+            } catch (std::out_of_range const &) {
+                return false;
+            }
+        }
+
+        template<typename T>
+        error erase(entity e) {
+            return get_component_ptr<T>()->remove(e);
+        }
+
+        template<typename T>
+        T &get(entity e) {
+            return get_component_ptr<T>()->get(e);
+        }
+
+        template<typename T>
+        T get(entity e) const {
+            return get_component_ptr<T>()->get(e);
+        }
+
+        template<typename... Components>
+        std::tuple<Components &...> get_multiple(entity e) {
+            return {get<Components>(e)...};
+        }
+
+        template<typename... Components>
+        std::tuple<Components...> get_multiple(entity e) const {
+            return {get<Components>(e)...};
         }
     };
 
