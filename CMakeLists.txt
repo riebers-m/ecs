@@ -42,6 +42,7 @@ target_link_libraries(ecs PUBLIC tl::expected)
 target_compile_features(ecs PUBLIC cxx_std_20)
 
 if (BUILD_TESTS)
+    message(STATUS "Building Tests for ${PROJECT_NAME}")
     CPMAddPackage(
             NAME Catch2
             VERSION 3.6.0
