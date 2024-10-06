@@ -1,5 +1,7 @@
 # ECS Library
 
+[![CMake on multiple platforms](https://github.com/riebers-m/ecs/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/riebers-m/ecs/actions/workflows/cmake-multi-platform.yml)
+
 A lightweight and flexible **Entity-Component-System** (ECS) library for game development or data-driven design. The
 library allows for efficient management of entities and their components, supporting multiple component types and
 providing a flexible querying system.
