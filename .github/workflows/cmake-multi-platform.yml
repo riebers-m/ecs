@@ -52,10 +52,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.c_compiler == 'gcc'
         run: |
           g++ --version
+          sudo apt update
+          sudo apt install software-properties-common
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test
           sudo apt update
-          sudo apt install g++-${{ matrix.gcc_version }}
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc_version }} ${{ matrix.gcc_version }}0
+          sudo apt install gcc-${{ matrix.gcc_version }} g++-${{ matrix.gcc_version }} -y
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc_version }} ${{ matrix.gcc_version }} --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc_version }}
           g++ --version
 
 
@@ -85,4 +87,4 @@ jobs:
         working-directory: ${{ steps.strings.outputs.build-output-dir }}
         # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
         # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-        run: ctest --build-config ${{ matrix.build_type }}
+        run: ctest --build-config ${{ matrix.build_type }} --output-on-failure
