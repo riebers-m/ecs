@@ -62,6 +62,7 @@ if (BUILD_TESTS)
             Catch2::Catch2WithMain
             ecs
     )
+    add_test(NAME ${PROJECT_NAME}-tests COMMAND ${PROJECT_NAME}-tests)
 endif ()
 
 add_library(ecs::ecs ALIAS ecs)
