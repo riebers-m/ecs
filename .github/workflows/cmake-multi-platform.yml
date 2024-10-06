@@ -51,9 +51,12 @@ jobs:
       - name: InstallGCC
         if: matrix.os == 'ubuntu-latest' && matrix.c_compiler == 'gcc'
         run: |
-          sudo apt-get update
-          sudo apt-get -y gcc-${{ matrix.gcc_version }} g++-${{ matrix.gcc_version }}
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc_version }} 60 --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc_version }}
+          g++ --version
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt update
+          sudo apt install g++-${{ matrix.gcc_version }}
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc_version }} ${{ matrix.gcc_version }}0
+          g++ --version
 
 
       - name: Set reusable strings
