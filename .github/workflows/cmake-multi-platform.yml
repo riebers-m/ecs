@@ -33,6 +33,7 @@ jobs:
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
+            gcc_version: 10
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
@@ -46,6 +47,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: InstallGCC
+        if: matrix.os == 'ubuntu-latest' && matrix.c.compiler == 'gcc'
+        run: |
+          sudo apt-get update
+          sudo apt-get -y gcc-${{ matrix.gcc_version }} g++-${{ matrix.gcc_version }}
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc_version }} 60 --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc_version }}
+
 
       - name: Set reusable strings
         # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
