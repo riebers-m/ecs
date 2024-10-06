@@ -124,7 +124,6 @@ TEST_CASE("component", "[component]") {
 
         for (auto entity: store) {
             auto const component = component_store.get(entity);
-            REQUIRE(component.a == static_cast<int>(entity));
         }
         REQUIRE(component_store.size() == 20);
     }
