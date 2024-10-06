@@ -56,8 +56,6 @@ jobs:
           sudo apt update
           sudo apt install g++-${{ matrix.gcc_version }}
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc_version }} ${{ matrix.gcc_version }}0
-          sudo update-alternatives --config gcc
-          sudo update-alternatives --config g++
           g++ --version
 
 
