@@ -103,3 +103,11 @@ ecs.view<position,velocity>([dt](auto& pos, auto& vel){
     pos.y += vel.y * dt;
 });
 ````
+
+To get multi type view.
+
+````c++
+auto view = ecs.view<position, velocity>();
+````
+
+Multi type views only give entities who owns the requested types.

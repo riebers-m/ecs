@@ -1,10 +1,15 @@
 cmake_minimum_required(VERSION 3.28)
-project(ecs)
+project(
+        ecs
+        VERSION 0.1.0
+        LANGUAGES CXX
+)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+#Major version: Breaking changes.
+#Minor version: Backwards-compatible features.
+#Patch version: Bug fixes.
 
-option(BUILD_TESTS "Build all tests" ON)
+option(BUILD_TESTS "Build all tests" OFF)
 
 include(cmake/CPM.cmake)
 
@@ -26,9 +31,15 @@ add_library(ecs STATIC
         src/entity.cpp
         include/component.hpp
         include/const.hpp
+        include/view.hpp
+        include/view.tpp
 )
-target_include_directories(ecs PUBLIC include)
+target_include_directories(ecs PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  # During build
+        $<INSTALL_INTERFACE:include>  # For installation
+)
 target_link_libraries(ecs PUBLIC tl::expected)
+target_compile_features(ecs PUBLIC cxx_std_20)
 
 if (BUILD_TESTS)
     CPMAddPackage(
@@ -52,7 +63,4 @@ if (BUILD_TESTS)
     )
 endif ()
 
-add_executable(${PROJECT_NAME}-main main.cpp)
-target_link_libraries(${PROJECT_NAME}-main ecs)
-target_include_directories(${PROJECT_NAME}-main PRIVATE include)
-
+add_library(ecs::ecs ALIAS ecs)

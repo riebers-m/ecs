@@ -6,6 +6,9 @@
 
 namespace memory_layout {
     tl::expected<size_t, ecs::error> compressed::add(ecs::entity e) {
+        if (contains(e)) {
+            return tl::unexpected(ecs::error::exists);
+        }
         if (auto const new_index = m_entity_count; new_index < ecs::ENTITY_COUNT) {
             m_entity_to_index[e] = new_index;
             m_index_to_entity[new_index] = e;

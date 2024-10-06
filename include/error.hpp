@@ -12,6 +12,7 @@ namespace ecs {
         empty,
         max_entities,
         failed,
+        exists,
     };
 }
 #endif // ERROR_HPP

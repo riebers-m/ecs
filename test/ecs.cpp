@@ -14,6 +14,11 @@ struct velocity {
     int dy{};
 };
 
+struct render_target {
+    int w{};
+    int h{};
+};
+
 struct not_default_constructable {
     int a;
 
@@ -34,6 +39,16 @@ TEST_CASE("emplace", "[ecs]") {
     SECTION("default constructable") { REQUIRE(ecs.emplace<position, velocity>(e) == ecs::error::ok); }
 
     SECTION("default constructable simple") { REQUIRE(ecs.emplace<position>(e) == ecs::error::ok); }
+    SECTION("emplace same multiple") {
+        REQUIRE(ecs.emplace<position>(e) == ecs::error::ok);
+        REQUIRE(ecs.emplace<position>(e) == ecs::error::failed);
+    }
+    SECTION("emplace multiple same multiple") {
+        REQUIRE(ecs.emplace<position, velocity>(e) == ecs::error::ok);
+        REQUIRE(ecs.emplace<position, velocity>(e) == ecs::error::failed);
+        REQUIRE(ecs.emplace<position>(e) == ecs::error::failed);
+        REQUIRE(ecs.emplace<velocity>(e) == ecs::error::failed);
+    }
 }
 
 TEST_CASE("insert", "[ecs]") {
@@ -46,6 +61,10 @@ TEST_CASE("insert", "[ecs]") {
         REQUIRE(ecs.insert(e, pos) == ecs::error::ok);
     }
     SECTION("insert inplace") { REQUIRE(ecs.insert(e, position{0, 0}) == ecs::error::ok); }
+    SECTION("insert same multiple") {
+        REQUIRE(ecs.insert(e, position{0, 0}) == ecs::error::ok);
+        REQUIRE(ecs.insert(e, position{0, 0}) == ecs::error::exists);
+    }
 }
 
 TEST_CASE("contains", "[ecs]") {
@@ -190,5 +209,89 @@ TEST_CASE("get", "[ecs]") {
         } catch (std::out_of_range const &) {
             SUCCEED("std::out_of_range catched");
         }
+    }
+}
+
+TEST_CASE("view", "[ecs]") {
+    ecs::ecs ecs;
+    SECTION("simple component") {
+        auto const e1 = ecs.create();
+        auto const e2 = ecs.create();
+        auto const e3 = ecs.create();
+        REQUIRE(ecs.emplace<position>(e1) == ecs::error::ok);
+        REQUIRE(ecs.insert(e2, velocity{2, 2}) == ecs::error::ok);
+        REQUIRE(ecs.insert(e3, velocity{3, 3}) == ecs::error::ok);
+
+        auto view = ecs.view<velocity>();
+        auto const vel2 = view.get<velocity>(e2);
+        auto const vel3 = view.get<velocity>(e3);
+        REQUIRE(vel2.dx == 2);
+        REQUIRE(vel2.dy == 2);
+        REQUIRE(vel3.dx == 3);
+        REQUIRE(vel3.dy == 3);
+        REQUIRE_THROWS_AS(view.get<velocity>(e1), std::out_of_range);
+    }
+
+    SECTION("component") {
+        auto const e1 = ecs.create();
+        auto const e2 = ecs.create();
+        auto const e3 = ecs.create();
+        REQUIRE(ecs.insert(e1, position{1, 1}) == ecs::error::ok);
+        REQUIRE(ecs.insert(e2, position{2, 2}) == ecs::error::ok);
+        REQUIRE(ecs.insert(e3, position{3, 3}) == ecs::error::ok);
+        REQUIRE(ecs.insert(e2, velocity{2, 2}) == ecs::error::ok);
+        REQUIRE(ecs.insert(e3, velocity{3, 3}) == ecs::error::ok);
+        REQUIRE(ecs.insert(e3, render_target{3, 3}) == ecs::error::ok);
+
+        {
+            auto view = ecs.view<position>();
+            int want = 1;
+            for (auto const entity: view) {
+                auto [dx, dy] = view.get<position>(entity);
+                REQUIRE(dx == want);
+                REQUIRE(dy == want);
+                want += 1;
+            }
+        }
+        {
+            auto view = ecs.view<position, velocity>();
+            int want = 2;
+            for (auto const entity: view) {
+                auto [pos, vel] = view.get_multiple<position, velocity>(entity);
+                REQUIRE(pos.dx == want);
+                REQUIRE(pos.dy == want);
+                REQUIRE(vel.dx == want);
+                REQUIRE(vel.dy == want);
+                want += 1;
+            }
+        }
+        {
+            auto view = ecs.view<position, velocity, render_target>();
+            int want = 3;
+            for (auto const entity: view) {
+                auto [pos, vel, render] = view.get_multiple<position, velocity, render_target>(entity);
+                REQUIRE(pos.dx == want);
+                REQUIRE(pos.dy == want);
+                REQUIRE(vel.dx == want);
+                REQUIRE(vel.dy == want);
+                REQUIRE(render.h == want);
+                REQUIRE(render.w == want);
+                want += 1;
+            }
+        }
+    }
+
+    SECTION("view get invalid") {
+        auto const e1 = ecs.create();
+        auto const e2 = ecs.create();
+        auto const e3 = ecs.create();
+        REQUIRE(ecs.emplace<position>(e1) == ecs::error::ok);
+        REQUIRE(ecs.insert(e2, velocity{2, 2}) == ecs::error::ok);
+        REQUIRE(ecs.insert(e3, velocity{3, 3}) == ecs::error::ok);
+
+        auto view = ecs.view<velocity>();
+        REQUIRE_NOTHROW(view.get<velocity>(e2));
+        REQUIRE_NOTHROW(view.get<velocity>(e3));
+        REQUIRE_THROWS_AS(view.get<velocity>(e1), std::out_of_range);
     }
 }

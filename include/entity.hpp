@@ -23,6 +23,10 @@ namespace ecs {
         [[nodiscard]] entity create();
         error destroy(entity);
         error clear();
+        std::unordered_set<entity>::iterator begin() { return m_living_entities.begin(); }
+        std::unordered_set<entity>::iterator end() { return m_living_entities.end(); }
+        [[nodiscard]] std::unordered_set<entity>::const_iterator begin() const { return m_living_entities.begin(); }
+        [[nodiscard]] std::unordered_set<entity>::const_iterator end() const { return m_living_entities.end(); }
     };
 } // namespace ecs
 #endif // ENTITY_HPP

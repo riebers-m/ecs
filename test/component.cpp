@@ -23,6 +23,11 @@ TEST_CASE("component", "[component]") {
         REQUIRE(component_store.size() == 4);
     }
 
+    SECTION("add same multiple") {
+        REQUIRE(component_store.add(ecs::entity{}, dummy{}) == ecs::error::ok);
+        REQUIRE(component_store.add(ecs::entity{}, dummy{}) == ecs::error::exists);
+    }
+
     SECTION("remove simple") {
         auto const e = ecs::entity{};
         REQUIRE(component_store.add(e, dummy{1, "Hello There"}) == ecs::error::ok);
